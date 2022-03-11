@@ -1,0 +1,32 @@
+<!-- Octomap Editor -->
+<!-- roslaunch octomap_editor octomap_editor.launch -->
+<!-- rosrun octomap_server octomap_saver ~/mapname.bt -->
+
+<launch>
+  <!-- Parameters -->
+  <arg name="world_file_name" default="small_maze2.bt"/>
+  <arg name="world_resolution" default="0.1"/>
+
+
+  <!-- Nodes -->
+  <node pkg="octomap_editor" type="octomap_editor_node" name="octomap_editor_node" output="screen">
+
+  </node>
+
+  <node pkg="rviz" type="rviz" name="rviz"
+        args="-d $(find octomap_editor)/launch/rviz_config/mapping.rviz" />
+
+  <node pkg="octomap_server" type="octomap_server_node" name="octomap_server"
+        args="$(find octomap_editor)/world/$(arg world_file_name)">
+    <param name="resolution"                 value="$(arg world_resolution)" />
+    <param name="frame_id"                   value="world" type="string"/>
+    <param name="base_frame_id"              value="world" type="string"/>
+    <param name="sensor_model/max_range"     value="-1" />
+    <param name="height_map"                 value="true"/>
+    <param name="filter_ground"              value="false"/>
+    <param name="pointcloud_min_z"           value="0.1" />
+    <param name="pointcloud_max_z"           value="5.0" />
+  </node>
+
+
+</launch>
