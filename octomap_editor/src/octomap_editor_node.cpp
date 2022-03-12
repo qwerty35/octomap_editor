@@ -134,17 +134,32 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
                 ROS_INFO_STREAM("Add markers in selection box");
                 pcl::PointCloud<pcl::PointXYZ> new_point_cloud;
                 new_point_cloud.points.clear();
-                for(int i = 0; i < 100; i++){
-                    pcl::PointXYZ point(-1 * ((double)i / 100), 0, 0.5);
-                    new_point_cloud.points.push_back(point);
+
+                geometry_msgs::Point min, max;
+                min.x = std::min(selection_point1.x(), selection_point2.x());
+                min.y = std::min(selection_point1.y(), selection_point2.y());
+                min.z = std::min(selection_point1.z(), selection_point2.z());
+                max.x = std::max(selection_point1.x(), selection_point2.x());
+                max.y = std::max(selection_point1.y(), selection_point2.y());
+                max.z = std::max(selection_point1.z(), selection_point2.z());
+
+                float res = 0.1; //TODO: param
+
+                for(float x = min.x; x < max.x; x += res){
+                    for(float y = min.y; y < max.y; y += res){
+                        for(float z = min.z; z < max.z; z += res){
+                            pcl::PointXYZ point(x, y, z);
+                            new_point_cloud.points.push_back(point);
+                        }
+                    }
                 }
 
                 sensor_msgs::PointCloud2 msg_point_cloud;
                 pcl::toROSMsg(new_point_cloud, msg_point_cloud);
                 msg_point_cloud.header.frame_id = "base_link";
                 msg_point_cloud.header.stamp = ros::Time::now();
-                ros::Rate rate(10);
-                for(int i = 0; i < 100000; i++){
+                ros::Rate rate(50);
+                for(int i = 0; i < 100; i++){
                     add_point_cloud_publisher.publish(msg_point_cloud);
                     rate.sleep();
                 }
