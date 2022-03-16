@@ -32,6 +32,15 @@ interactive_markers::MenuHandler menu_handler;
 
 void selectionBoxCallback(const ros::TimerEvent&)
 {
+
+    static tf::TransformBroadcaster br;
+    tf::Transform transform;
+    transform.setOrigin( tf::Vector3(selection_point1.x(), selection_point1.y(), selection_point1.z()) );
+    tf::Quaternion q;
+    q.setRPY(0, 0, 0);
+    transform.setRotation(q);
+    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "selection_point1"));
+
     visualization_msgs::MarkerArray marker_array;
     octomap::point3d selection_box_pose = (selection_point1 + selection_point2) * 0.5;
     octomap::point3d selection_box_delta = selection_point1 - selection_point2;
@@ -148,7 +157,9 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
                 for(float x = min.x; x < max.x; x += res){
                     for(float y = min.y; y < max.y; y += res){
                         for(float z = min.z; z < max.z; z += res){
-                            pcl::PointXYZ point(x, y, z);
+                            pcl::PointXYZ point(x - selection_point1.x(),
+                                                y - selection_point1.y(),
+                                                z - selection_point1.z());
                             new_point_cloud.points.push_back(point);
                         }
                     }
@@ -156,7 +167,7 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
 
                 sensor_msgs::PointCloud2 msg_point_cloud;
                 pcl::toROSMsg(new_point_cloud, msg_point_cloud);
-                msg_point_cloud.header.frame_id = "base_link";
+                msg_point_cloud.header.frame_id = "selection_point1";
                 msg_point_cloud.header.stamp = ros::Time::now();
                 ros::Rate rate(50);
                 for(int i = 0; i < 100; i++){
