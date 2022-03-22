@@ -7,7 +7,7 @@
 
 <launch>
   <!-- Parameters -->
-  <arg name="world_file_name" default="exp1.bt"/>
+  <arg name="world_file_name" default="exp2.bt"/>
   <arg name="world_resolution" default="0.1"/>
 
 <!--  <node pkg="tf" type="static_transform_publisher" name="base_link_broadcaster" args="0 0 0 0 0 0 1 base_link world 100" />-->
