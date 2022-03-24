@@ -8,13 +8,13 @@
 <launch>
   <!-- Parameters -->
   <arg name="world_file_name" default="exp2.bt"/>
+  <arg name="save_file_name"  default="newmap.bt"/>
   <arg name="world_resolution" default="0.1"/>
-
-<!--  <node pkg="tf" type="static_transform_publisher" name="base_link_broadcaster" args="0 0 0 0 0 0 1 base_link world 100" />-->
 
   <!-- Nodes -->
   <node pkg="octomap_editor" type="octomap_editor_node" name="octomap_editor_node" output="screen">
-
+    <param name="save_file_name"   value="$(arg save_file_name)" />
+    <param name="resolution" value="$(arg world_resolution)" />
   </node>
 
   <node pkg="rviz" type="rviz" name="rviz"
