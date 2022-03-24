@@ -33,44 +33,41 @@ interactive_markers::MenuHandler menu_handler;
 // %EndTag(vars)%
 
 
-void selectionBoxCallback(const ros::TimerEvent&)
-{
-    static tf::TransformBroadcaster br;
-    tf::Transform transform;
-    transform.setOrigin( tf::Vector3(selection_point1.x(), selection_point1.y(), selection_point1.z()) );
-    tf::Quaternion q;
-    q.setRPY(0, 0, 0);
-    transform.setRotation(q);
-    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "selection_point1"));
+void publishPointCloud(const octomap::point3d& p1, const octomap::point3d& p2, const std::string& frame_id){
+    pcl::PointCloud<pcl::PointXYZ> new_point_cloud;
+    new_point_cloud.points.clear();
 
-    visualization_msgs::MarkerArray marker_array;
-    octomap::point3d selection_box_pose = (selection_point1 + selection_point2) * 0.5;
-    octomap::point3d selection_box_delta = selection_point1 - selection_point2;
-    visualization_msgs::Marker marker;
-    marker.header.frame_id = "base_link";
-    marker.id = 0;
-    marker.ns = "selection_box";
-    marker.type = visualization_msgs::Marker::CUBE;
-    marker.action = visualization_msgs::Marker::ADD;
-    marker.pose.position.x = selection_box_pose.x();
-    marker.pose.position.y = selection_box_pose.y();
-    marker.pose.position.z = selection_box_pose.z();
-    marker.pose.orientation.x = 0;
-    marker.pose.orientation.y = 0;
-    marker.pose.orientation.z = 0;
-    marker.pose.orientation.w = 1;
-    marker.scale.x = abs(selection_box_delta.x());
-    marker.scale.y = abs(selection_box_delta.y());
-    marker.scale.z = abs(selection_box_delta.z());
-    marker.color.r = 0.0;
-    marker.color.g = 1.0;
-    marker.color.b = 0.0;
-    marker.color.a = 0.3;
+    geometry_msgs::Point min, max;
+    min.x = std::min(p1.x(), p2.x());
+    min.y = std::min(p1.y(), p2.y());
+    min.z = std::min(p1.z(), p2.z());
+    max.x = std::max(p1.x(), p2.x());
+    max.y = std::max(p1.y(), p2.y());
+    max.z = std::max(p1.z(), p2.z());
 
-    marker_array.markers.emplace_back(marker);
+    float res = resolution;
+    for(float x = min.x; x < max.x; x += res){
+        for(float y = min.y; y < max.y; y += res){
+            for(float z = min.z; z < max.z; z += res){
+                pcl::PointXYZ point(x - p1.x(),
+                                    y - p1.y(),
+                                    z - p1.z());
+                new_point_cloud.points.push_back(point);
+            }
+        }
+    }
 
-//    selection_box_publisher.publish(marker_array);
+    sensor_msgs::PointCloud2 msg_point_cloud;
+    pcl::toROSMsg(new_point_cloud, msg_point_cloud);
+    msg_point_cloud.header.frame_id = frame_id;
+    msg_point_cloud.header.stamp = ros::Time::now();
+    ros::Rate rate(50);
+    for(int i = 0; i < 20; i++){
+        add_point_cloud_publisher.publish(msg_point_cloud);
+        rate.sleep();
+    }
 }
+
 
 void tfCallback(const ros::TimerEvent&)
 {
@@ -152,38 +149,7 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
             }
             else if(feedback->menu_entry_id == 2){
                 ROS_INFO_STREAM("Add markers in selection box");
-                pcl::PointCloud<pcl::PointXYZ> new_point_cloud;
-                new_point_cloud.points.clear();
-
-                geometry_msgs::Point min, max;
-                min.x = std::min(selection_point1.x(), selection_point2.x());
-                min.y = std::min(selection_point1.y(), selection_point2.y());
-                min.z = std::min(selection_point1.z(), selection_point2.z());
-                max.x = std::max(selection_point1.x(), selection_point2.x());
-                max.y = std::max(selection_point1.y(), selection_point2.y());
-                max.z = std::max(selection_point1.z(), selection_point2.z());
-
-                float res = resolution;
-                for(float x = min.x; x < max.x; x += res){
-                    for(float y = min.y; y < max.y; y += res){
-                        for(float z = min.z; z < max.z; z += res){
-                            pcl::PointXYZ point(x - selection_point1.x(),
-                                                y - selection_point1.y(),
-                                                z - selection_point1.z());
-                            new_point_cloud.points.push_back(point);
-                        }
-                    }
-                }
-
-                sensor_msgs::PointCloud2 msg_point_cloud;
-                pcl::toROSMsg(new_point_cloud, msg_point_cloud);
-                msg_point_cloud.header.frame_id = "selection_point1";
-                msg_point_cloud.header.stamp = ros::Time::now();
-                ros::Rate rate(50);
-                for(int i = 0; i < 100; i++){
-                    add_point_cloud_publisher.publish(msg_point_cloud);
-                    rate.sleep();
-                }
+                publishPointCloud(selection_point1, selection_point2, "selection_point1");
             }
             else if(feedback->menu_entry_id == 3){
                 ROS_INFO_STREAM("Save octomap");

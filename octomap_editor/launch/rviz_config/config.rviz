@@ -63,20 +63,6 @@ Visualization Manager:
         map: true
       Queue Size: 100
       Value: true
-    - Class: rviz/TF
-      Enabled: true
-      Frame Timeout: 15
-      Frames:
-        All Enabled: true
-      Marker Scale: 1
-      Name: TF
-      Show Arrows: true
-      Show Axes: true
-      Show Names: true
-      Tree:
-        {}
-      Update Interval: 0
-      Value: true
     - Class: rviz/InteractiveMarkers
       Enable Transparency: true
       Enabled: true
@@ -85,14 +71,6 @@ Visualization Manager:
       Show Descriptions: false
       Show Visual Aids: false
       Update Topic: /basic_controls/update
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /selection_box
-      Name: MarkerArray
-      Namespaces:
-        selection_box: true
-      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
@@ -122,25 +100,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.463312149047852
+      Distance: 21.28144645690918
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.07983669638633728
-        Y: 0.8242382407188416
-        Z: 0.4570888578891754
+        X: -1.399796962738037
+        Y: -2.3742756843566895
+        Z: -0.562592089176178
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.304796576499939
+      Pitch: 1.1247962713241577
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.5381855964660645
+      Yaw: 4.676362037658691
     Saved: ~
 Window Geometry:
   Displays:

@@ -8,7 +8,7 @@
 <launch>
   <!-- Parameters -->
   <arg name="world_file_name" default="exp2.bt"/>
-  <arg name="save_file_name"  default="newmap.bt"/>
+  <arg name="save_file_name"  default="empty.bt"/>
   <arg name="world_resolution" default="0.1"/>
 
   <!-- Nodes -->
